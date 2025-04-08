@@ -8,37 +8,46 @@ Habilidades trabalhadas:
 # Importando a biblioteca NumPy, que será utilizada para organizar o tabuleiro do jogo.
 import numpy as np
 
+def criar_tabuleiro():
+    """Cria um tabuleiro vazio 3x3.
+    
+    Retorna:
+        np.ndarray: Uma matriz 3x3 preenchida com espaços vazios (' '), representando o tabuleiro do jogo.
+    """
+    # cria uma matriz 3x3 (tabuleiro do jogo da velha) preenchida com espaços em branco (' '), representando células vazias.
+    return np.full((3, 3), ' ') # A função np.full() é uma função da biblioteca NumPy que cria um array (ou matriz) com um tamanho especificado e preenche todos os seus elementos com um valor específico.
+
 # Função para imprimir o tabuleiro
 def imprimir_tabuleiro(tabuleiro):
     """
-    Esta função exibe o tabuleiro de jogo na tela.
+    Exibe o tabuleiro de jogo na tela.
     
     Parâmetros:
-    - tabuleiro: uma matriz 3x3 representando o estado atual do tabuleiro (com "X", "O" ou " ").
-    
-    A função imprime o tabuleiro de forma legível no console, com separadores entre as linhas e colunas.
+        tabuleiro (np.ndarray): Uma matriz 3x3 representando o estado atual do tabuleiro (com "X", "O" ou " ").
     """
-    for i in range(3):
-        # Exibe uma linha do tabuleiro, unindo as células com '|' e separando as linhas com '---------'
-        print(" | ".join(tabuleiro[i]))
+    print("\n  0   1   2")  # Índices das colunas
+    for i, linha in enumerate(tabuleiro):
+        # Imprime cada linha com a formatação adequada
+        print(f"{i} {linha[0]} | {linha[1]} | {linha[2]}")  # Índice da linha
         if i < 2:
-            print("---------")
+            print("  ---------")  # Linha divisória para melhorar a legibilidade
 
 # Função para verificar se um jogador venceu
 def verificar_vitoria(tabuleiro, jogador):
     """
-    Esta função verifica se o jogador (X ou O) venceu o jogo.
+    Verifica se o jogador (X ou O) venceu o jogo.
     
     Parâmetros:
-    - tabuleiro: uma matriz 3x3 representando o estado atual do tabuleiro.
-    - jogador: um caractere, 'X' ou 'O', representando o jogador que se deseja verificar.
-    
+        tabuleiro (np.ndarray): Uma matriz 3x3 representando o estado atual do tabuleiro.
+        jogador (str): Um caractere ('X' ou 'O') representando o jogador que se deseja verificar.
+        
     Retorna:
-    - True se o jogador venceu (alinhou três símbolos em linha, coluna ou diagonal).
-    - False caso contrário.
+        bool: True se o jogador venceu (alinhou três símbolos em linha, coluna ou diagonal),
+              False caso contrário.
     """
     # Verifica se há três símbolos iguais em alguma linha
     for i in range(3):
+        # A função all() no seu código é usada para verificar se todas as células em uma linha, coluna ou diagonal do tabuleiro possuem o mesmo valor, indicando que um jogador venceu, alinhando seus símbolos.
         if all(tabuleiro[i, j] == jogador for j in range(3)):  # Linha
             return True
         if all(tabuleiro[j, i] == jogador for j in range(3)):  # Coluna
@@ -50,68 +59,73 @@ def verificar_vitoria(tabuleiro, jogador):
     if tabuleiro[0, 2] == jogador and tabuleiro[1, 1] == jogador and tabuleiro[2, 0] == jogador:  # Diagonal secundária
         return True
     
-    # Se nenhuma condição de vitória for atendida, retorna False
-    return False
+    return False  # Caso contrário, não houve vitória
 
 # Função para verificar se o jogo terminou em empate
 def verificar_empate(tabuleiro):
     """
-    Esta função verifica se o jogo terminou em empate. O empate ocorre se o tabuleiro estiver cheio
+    Verifica se o jogo terminou em empate. O empate ocorre se o tabuleiro estiver cheio
     e ninguém venceu.
     
     Parâmetros:
-    - tabuleiro: uma matriz 3x3 representando o estado atual do tabuleiro.
-    
+        tabuleiro (np.ndarray): Uma matriz 3x3 representando o estado atual do tabuleiro.
+        
     Retorna:
-    - True se o jogo terminou em empate (não há mais espaços vazios e ninguém venceu).
-    - False caso contrário.
+        bool: True se o jogo terminou em empate, ou seja, se não houver espaços vazios e ninguém venceu.
+              False caso contrário.
     """
     # Verifica se há algum espaço vazio no tabuleiro. Se não houver, é um empate
-    return not np.any(tabuleiro == " ")
+    return not np.any(tabuleiro == " ")  # Se não houver espaços vazios, retorna True (empate)
 
 # Função principal que gerencia o fluxo do jogo
 def jogar():
-    """
-    Função principal que gerencia o jogo da velha. Alterna os turnos entre os jogadores X e O, verifica
-    as condições de vitória ou empate e exibe o tabuleiro a cada jogada.
+    """Controla o fluxo do jogo da velha.
     
-    O jogo termina quando um dos jogadores vence ou quando o jogo termina em empate.
+    Inicializa o tabuleiro, alterna entre os jogadores, recebe as entradas dos jogadores, verifica as condições de vitória e empate.
     """
     # Inicializa o tabuleiro como uma matriz 3x3 vazia (todos os espaços são representados por " ")
-    tabuleiro = np.full((3, 3), " ", dtype=str)
+    tabuleiro = criar_tabuleiro()
 
     # Define o primeiro jogador como "X"
     jogador_atual = "X"
-    
+
+    print("\nBem-vindo ao Jogo da Velha!")
+    print("\nInstruções:")
+    print("- Digite as coordenadas no formato 'linha,coluna' separados por ',' (ex: 0,1)")
+    print("- Linhas e colunas são numeradas de 0 a 2")
+    print("- Jogador X começa, seguido pelo jogador O\n")
+
     while True:
-        # Exibe o tabuleiro atual na tela
+        # Exibe o tabuleiro atualizado
         imprimir_tabuleiro(tabuleiro)
-        
-        # Solicita a jogada do jogador atual
-        print(f"Jogador {jogador_atual}, escolha sua jogada (linha, coluna):")
-        
+
+        # Obtém a jogada do jogador com tratamento de erros
         try:
-            # Solicita as coordenadas de linha e coluna do jogador
-            linha, coluna = map(int, input("Digite a linha e a coluna (0, 1, 2 separados por espaço): ").split())
+            # Solicita a entrada do jogador no formato linha,coluna
+            entrada = input(f"Jogador {jogador_atual}, digite linha,coluna separados por ',' (ex: 0,1): ")
+            linha, coluna = map(int, entrada.split(','))  # Converte a entrada para inteiros
+
+            # Verifica se a posição está dentro dos limites (0 a 2 para linhas e colunas)
+            if linha < 0 or linha > 2 or coluna < 0 or coluna > 2:
+                print("Posição inválida! Digite valores entre 0 e 2.")
+                continue  # Se a posição for inválida, solicita novamente a jogada
             
             # Verifica se a célula selecionada está vazia
             if tabuleiro[linha, coluna] != " ":
                 print("Espaço já ocupado! Tente novamente.")
-                continue
-            
+                continue  # Se a posição já estiver ocupada, solicita novamente a jogada
+
             # Marca a jogada do jogador no tabuleiro
             tabuleiro[linha, coluna] = jogador_atual
             
             # Verifica se o jogador atual venceu após esta jogada
             if verificar_vitoria(tabuleiro, jogador_atual):
-                # Exibe o tabuleiro final e a mensagem de vitória
                 imprimir_tabuleiro(tabuleiro)
                 print(f"Jogador {jogador_atual} venceu!")
                 break  # Finaliza o jogo
             
             # Verifica se o jogo terminou em empate
             if verificar_empate(tabuleiro):
-                # Exibe o tabuleiro final e a mensagem de empate
                 imprimir_tabuleiro(tabuleiro)
                 print("O jogo terminou em empate!")
                 break  # Finaliza o jogo
@@ -124,4 +138,16 @@ def jogar():
             print("Entrada inválida! Digite as coordenadas corretamente (valores entre 0 e 2).")
 
 # Inicia o jogo chamando a função principal
-jogar()
+if __name__ == "__main__":
+    jogar()
+
+"""
+O bloco if __name__ == "__main__": permite que o código que está dentro dele seja executado somente quando o arquivo for 
+executado diretamente, e não quando for importado em outro script. Isso é útil para evitar a execução de partes do código 
+indesejadas (como iniciar o jogo) quando o script é usado como um módulo em outro programa.
+
+Se você remover o bloco if __name__ == "__main__": e chamar diretamente a função jogar() em seu código, ele ainda funcionará 
+enquanto você estiver executando o arquivo diretamente. No entanto, há algumas considerações sobre como isso pode impactar o 
+comportamento, dependendo de como o script é executado.
+
+"""
